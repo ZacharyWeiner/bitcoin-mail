@@ -33,7 +33,7 @@ export default {
             const computer = await new Computer({network: "testnet", chain: "BSV", seed: "flash wink van suit only spike cart yellow stadium effort detail ill"})
             const fromKey = await computer.db.wallet.getPublicKey().toString()
             const EMAIL = await FileUtils.importFromPublic('contracts/Email.js')
-            let date = Date.now().toString()
+            let date = new Date()
             try{
                 console.log("To", this.to.value, "Subj: ", this.subject.value, "Body: ", this.body.value, "Date: ", date)
                 let _email = await computer.new(EMAIL, [this.to.value, fromKey, this.subject.value, this.body.value, date ])

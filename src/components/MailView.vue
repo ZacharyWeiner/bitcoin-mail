@@ -10,7 +10,7 @@
         </div>
         
         <h2 class='mb-0'> Subject: <strong> {{email.subject}} </strong> </h2>
-        <div> <em> From {{email.from}} on {{format(new Date(email.sentAt), 'MMM dd yyyy')}} </em></div>
+        <div> <em> From {{email.from}} on {{email.sent}} </em></div>
         <div v-html="marked(email.body)"/>
     </div>
 </template>

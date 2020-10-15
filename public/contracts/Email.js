@@ -15,6 +15,6 @@ class Email {
     }
     
     read(pk){
-        if(pk === this.from) this.isRead = true
+        if(pk === this.to) this.isRead = true
     } 
 }

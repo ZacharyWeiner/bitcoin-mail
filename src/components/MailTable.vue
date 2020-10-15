@@ -5,9 +5,9 @@
             <tr v-for="email in unarchivedEmails" :key='email.id' :class="['clickable', email.read? 'read' : '']"
                 @click="openEmail(email)"> 
                 <td><input type='checkbox'/> </td>
-                <td>{{email.from}}</td>
+                <td>{{email.from.substring(email.from.length -16, email.from.length)}}</td>
                 <td><strong>{{email.subject}}</strong></td>
-                <td class='date'>{{format(new Date(email.sentAt), 'MMM dd yyyy') }}</td>
+                <td class='date'>{{ new Date(-email.sentAt).getMonth() }}</td>
                 <td><button @click="archiveEmail(email)"> archive </button></td>
             </tr>
             </tbody>
@@ -26,17 +26,24 @@ import MailView from '@/components/MailView.vue'
 import ModalView from '@/components/ModalView.vue'
 import { ref } from 'vue'
 import Computer from 'bitcoin-computer'
-// import NewMessage from '@/components/NewMessage.vue'
+//import NewMessage from '@/components/NewMessage.vue'
 
 export default {
     async setup(){
     let response = await axios.get('http://localhost:3000/emails')
     console.log(response.data)
-    let emails = ref(response.data)
+    //let emails = ref(response.data)
     let openedEmail = null
     let emailSelected = ref(false)
-    const _computer = await new Computer({network: "testnet", chain: "BSV", seed: "flash wink van suit only spike cart yellow stadium effort detail ill"})
-
+    const computer = await new Computer({network: "testnet", chain: "BSV", seed: "flash wink van suit only spike cart yellow stadium effort detail ill"})
+    let revs = await computer.getRevs(computer.db.wallet.getPublicKey())
+    console.log(revs)
+    let synced = await Promise.all(revs.map(async r => {
+      console.log('syncing:', r)
+      return computer.sync(r)
+    }))
+    let emails = ref(synced)
+    console.log(synced)
     return {
       format, 
       emails, 
@@ -52,6 +59,7 @@ export default {
   }, 
   computed: {
     sortedEmails(){
+      if(!this.emails || this.emails.length < 2) return this.emails
       return this.emails.sort((e1, e2) => {
         return e1.sentAt < e2.sentAt ? 1 : -1 
       })
@@ -76,7 +84,7 @@ export default {
       openEmail(email){
           email.read = true
           this.emailSelected = true
-          this.updateEmail(email)
+          //this.updateEmail(email)
           this.openedEmail = email
           console.log("clicked an email to open", this.openedEmail)
       },
