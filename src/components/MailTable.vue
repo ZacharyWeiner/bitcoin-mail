@@ -1,4 +1,4 @@
-  <template>
+<template>
     <div>
         <table class='mail-table'>
             <tbody>
@@ -27,7 +27,6 @@ import ModalView from '@/components/ModalView.vue'
 import { ref } from 'vue'
 import Computer from 'bitcoin-computer'
 // import NewMessage from '@/components/NewMessage.vue'
-
 export default {
     async setup(){
     let response = await axios.get('http://localhost:3000/emails')
@@ -35,8 +34,7 @@ export default {
     let emails = ref(response.data)
     let openedEmail = null
     let emailSelected = ref(false)
-    const _computer = await new Computer({network: "testnet", chain: "BSV", seed: "flash wink van suit only spike cart yellow stadium effort detail ill"})
-
+    const computer = await new Computer({network: "testnet", chain: "BSV", seed: "flash wink van suit only spike cart yellow stadium effort detail ill"})
     return {
       format, 
       emails, 
@@ -109,10 +107,8 @@ export default {
           return emails.indexOf(this.openedEmail)
       },
   }
-
 }
 </script>
 
 <style scoped>
-
 </style>
