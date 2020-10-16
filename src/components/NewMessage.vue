@@ -42,7 +42,7 @@ export default {
     }
 }
 </script>
-<style scoped>
+<style>
 *, *:before, *:after {
   -moz-box-sizing: border-box;
   -webkit-box-sizing: border-box;
@@ -116,6 +116,16 @@ button {
   border-width: 1px 1px 3px;
   box-shadow: 0 -1px 0 rgba(255,255,255,0.1) inset;
   margin-bottom: 10px;
+}
+
+.warning-button {
+  background-color: darkgoldenrod;
+  border: 1px solid darkgoldenrod;
+}
+
+.error-button {
+  background-color: red;
+  border: 1px solid red;
 }
 
 fieldset {

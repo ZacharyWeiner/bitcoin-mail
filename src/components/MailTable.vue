@@ -5,8 +5,10 @@
         <button @click="login"> Login </button>
       </div>
       <div v-if="this.seed_string"> 
-        <button v-if="loggedIn" @click="logout"> Logout </button>
+        <div> {{publicKey}} </div>
+        <button v-if="loggedIn" @click="logout" className='error-button'> Logout </button>
         <button v-if="loggedIn" @click="showNewEmail" > + New Tmail </button>
+        <div v-if="!has_emails">You Have No New Mail In Your Inbox</div>
         <table v-if="loggedIn" class='mail-table'>
             <tbody>
             <tr v-for="email in unarchivedEmails" :key='email.id' :class="['clickable', email.read? 'read' : '']"
@@ -15,7 +17,7 @@
                 <td>{{email.from.substring(email.from.length -16, email.from.length)}}</td>
                 <td><strong>{{email.subject}}</strong></td>
                 <td class='date'>{{email.sentAt }}</td>
-                <td><button @click="archiveEmail(email)"> archive </button></td>
+                <td><button @click="archiveEmail(email)" className="warning-button"> archive </button></td>
             </tr>
             </tbody>
         </table>
@@ -41,22 +43,24 @@ import NewMessage from '@/components/NewMessage.vue'
 export default {
     async setup(){
       let seed_string = window.localStorage.getItem("SEED")
+      let has_emails = ref(false)
       console.log(seed_string)
       let emails;
-      let openedEmail = null
+      let openedEmail = ref(null)
       let emailSelected = ref(false)
       let newEmail = ref(false)
+      let publicKey = ref("")
       if( seed_string !== null){
         const _computer = await new Computer({network: "testnet", chain: "BSV", seed: seed_string})
-        console.log(_computer.db.wallet.getPublicKey().toString())
+        publicKey = _computer.db.wallet.getPublicKey().toString()
         let revs = await _computer.getRevs(_computer.db.wallet.getPublicKey())
         console.log(revs)
         let synced = await Promise.all(revs.map(async r => {
-          console.log('syncing:', r)
           return _computer.sync(r)
         }))
         emails = ref(synced)
-        console.log(synced)
+        has_emails = (synced.filter(e => !e.archived).length > 0)
+
       }else{
         seed_string = ref("")
         emails = ref(null)
@@ -67,7 +71,9 @@ export default {
         openedEmail,
         emailSelected,
         newEmail,
-        seed_string
+        seed_string, 
+        publicKey, 
+        has_emails
       }
   },
   components: {
@@ -105,11 +111,10 @@ export default {
   methods: {
       async openEmail(email){
           this.emailSelected = true
-          this.isLoggedIn = window.localStorage.getItem("SEED") != null 
-          //this.updateEmail(email)          
+          this.isLoggedIn = window.localStorage.getItem("SEED") != null        
           this.openedEmail = email
           if (!email.isRead){
-            const computer = await new Computer({network: "testnet", chain: "BSV", seed: "flash wink van suit only spike cart yellow stadium effort detail ill"})
+            const computer = await new Computer({network: "testnet", chain: "BSV", seed: this.seed_string})
             const fromKey = await computer.db.wallet.getPublicKey().toString()
             console.log("TO: ", email.to, "This: ", fromKey)
             try{
@@ -117,21 +122,27 @@ export default {
             console.log("Response: ", response)
             }catch(err){alert(err)}
           }
-          console.log("clicked an email to open", this.openedEmail)
       },
       archiveEmail(email){
-          email.archived = true
-          this.updateEmail(email)
+        if(!email.archived){
+            email.archive(this.publicKey)
+          }
       },
-      updateEmail(email){  
-        axios.put(`http://localhost:3000/emails/${email.id}`, email)
-      }, 
-      changeEmail({toggleRead, toggleArchived, save, closeModal, changeIndex}){
+      async changeEmail({toggleRead, toggleArchived, save, closeModal, changeIndex}){
           console.log('changed')
           let email = this.openedEmail
-          if(toggleRead){email.read = !email.read}
-          if(toggleArchived){email.archived = !email.archived}
-          if(save){this.updateEmail(email)}
+          const computer = await new Computer({network: "testnet", chain: "BSV", seed: this.seed_string})
+          const fromKey = await computer.db.wallet.getPublicKey().toString()
+          if(toggleRead){
+            if(!email.read){
+              email.read()
+            }
+          }
+          if(toggleArchived){
+            if(!email.archived){
+              email.archive()
+            }
+          }
           if(closeModal){email = null}
           if(changeIndex){
               let currentIndex = this.getEmailIndex()
