@@ -8,6 +8,7 @@ class Email {
         this.sentAt = sentAt
         this.archived = false
         this.isRead = false
+        this.replies = []
     }
 
     archive(pk){
@@ -17,4 +18,8 @@ class Email {
     read(pk){
         if(pk === this.to) this.isRead = true
     } 
+
+    reply(pk, message){
+        this.replies.push(pk + ":" + message)
+    }
 }

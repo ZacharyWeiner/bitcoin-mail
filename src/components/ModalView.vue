@@ -2,7 +2,7 @@
     <div class="modal">
         <div class="overlay" ></div>
         <div class="modal-card" >
-            <button style='float:right' @click="emit( 'closeModal')"> X </button>
+            <button style='float:right' @click="emit( 'closeModal')" className="error-button"> X </button>
             <slot />
         </div>
     </div>

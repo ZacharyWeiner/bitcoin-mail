@@ -14,7 +14,7 @@
             <tr v-for="email in unarchivedEmails" :key='email.id' :class="['clickable', email.read? 'read' : '']"
                 @click="openEmail(email)"> 
                 <td><input type='checkbox'/> </td>
-                <td>{{email.from.substring(email.from.length -16, email.from.length)}}</td>
+                <td>{{email.from.substring(email.from.length -16, email.from.length)}} {{email._rev}} {{email._id}}</td>
                 <td><strong>{{email.subject}}</strong></td>
                 <td class='date'>{{email.sentAt }}</td>
                 <td><button @click="archiveEmail(email)" className="warning-button"> archive </button></td>
@@ -25,7 +25,7 @@
             <MailView :email="openedEmail" :showNext="showNext" :showPrevious="showPrevious" @changeEmail="changeEmail"/>
         </ModalView>
         <ModalView v-if="newEmail" @closeModal="newEmail = false">
-          <NewMessage :newEmail="newEmail" ></NewMessage>
+          <NewMessage :newEmail="newEmail" :reciever="publicKey"></NewMessage>
         </ModalView >
       </div>   
     </div>
@@ -42,7 +42,8 @@ import NewMessage from '@/components/NewMessage.vue'
 
 export default {
     async setup(){
-      let seed_string = window.localStorage.getItem("SEED")
+      let seed_string = ref ("")
+      seed_string = window.localStorage.getItem("SEED")
       let has_emails = ref(false)
       console.log(seed_string)
       let emails;
@@ -55,11 +56,28 @@ export default {
         publicKey = _computer.db.wallet.getPublicKey().toString()
         let revs = await _computer.getRevs(_computer.db.wallet.getPublicKey())
         console.log(revs)
-        let synced = await Promise.all(revs.map(async r => {
-          return _computer.sync(r)
+        let ids = []
+        let synced = await Promise.all(revs.map(async lr => {
+          let _mail =  await _computer.sync(lr)
+          console.log(_mail._id)
+          if(!ids.includes(_mail._id)){
+            ids.push(_mail._id)
+            return _mail
+          }
         }))
-        emails = ref(synced)
-        has_emails = (synced.filter(e => !e.archived).length > 0)
+
+        var t2 =  await Promise.all(ids.map(async id => {
+          let _rev = await _computer.getLatestRev(id)
+          let _mail = await _computer.sync(_rev)
+          console.log(_mail)
+          return _mail
+        }))
+
+        var filtered = synced.filter(function (el) {
+          return el != null;
+        });
+        emails = ref(t2)
+        has_emails = (t2.filter(e => !e.archived).length > 0)
 
       }else{
         seed_string = ref("")

@@ -4,7 +4,7 @@
         <h1>Send Message</h1>
         <fieldset>
           <label for="to">To:</label>
-          <input type="text" id="to" name="to" >
+          <input type="text" id="to" name="to" v-model="to" >
           <label for="subject">Subject:</label>
           <input type="text" id="subject" name="subject" >
           <label for="body">Message:</label>
@@ -19,25 +19,37 @@ import { ref } from 'vue'
 import FileUtils from '@/utilities/FileUtils.js'
 import Computer from 'bitcoin-computer'
 export default {
-    // async setup(props){
-    //     let to = ''
-    //     let subject = ref('')
-    //     let body = ref('')
-    //     return {to, subject, body}
-    // },
+    setup(props){
+        console.log('setting up New Message:', props.reciever)
+        let to = ref('')
+        if(props.reciever){
+            console.log(props.reciever)
+            to = props.reciever
+        }
+        let subject = ref('')
+        let body = ref('')
+        return {to, subject, body}
+    },
     methods: {
         async doSubmit(e){
             e.preventDefault()
             console.log('clicked')
-            const computer = await new Computer({network: "testnet", chain: "BSV", seed: "flash wink van suit only spike cart yellow stadium effort detail ill"})
+            let seed_string = window.localStorage.getItem("SEED")
+            const computer = await new Computer({network: "testnet", chain: "BSV", seed: seed_string})
             const fromKey = await computer.db.wallet.getPublicKey().toString()
             const EMAIL = await FileUtils.importFromPublic('contracts/Email.js')
             let date = new Date()
             try{
                 console.log("To", to.value, "Subj: ", subject.value, "Body: ", body.value, "Date: ", date)
-                let _email = await computer.new(EMAIL, [to.value, fromKey, subject.value, body.value, date.toString() ])
-                console.log(_email)
+                //let _email = await computer.new(EMAIL, [to.value, fromKey, subject.value, body.value, date.toString() ])
+                //console.log(_email)
             }catch(err){console.log(err)}
+        }
+    },
+    props:{
+        reciever: {
+            type: String, 
+            required: true
         }
     }
 }
@@ -126,6 +138,21 @@ button {
 .error-button {
   background-color: red;
   border: 1px solid red;
+} 
+
+.default-button {
+  background-color: gray;
+  border: 1px solid gray;
+}
+
+.previous-button {
+  background-color: orange;
+  border: 1px solid orange;
+}
+
+.blue-button {
+  background-color: blue;
+  border: 1px solid blue;
 }
 
 fieldset {
