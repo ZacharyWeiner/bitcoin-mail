@@ -1,15 +1,14 @@
 <template>
     <div>
-      <form @submit="doSubmit">
+      <form @submit="doSubmit" >
         <h1>Send Message</h1>
         <fieldset>
-          <label for="to_field">To:</label>
-          <input ref="to" type="text" id="to_field" name="to_field" >
-          
-          <label for="subject_field">Subject:</label>
-          <input type="text" id="subject_field" name="subject_field" ref="subject">
-          <label for="body_field">Message:</label>
-          <textarea id="body_field" name="body_field" ref="body"></textarea>
+          <label for="to">To:</label>
+          <input type="text" id="to" name="to" >
+          <label for="subject">Subject:</label>
+          <input type="text" id="subject" name="subject" >
+          <label for="body">Message:</label>
+          <textarea id="body" name="body" ></textarea>
         </fieldset>
         <button type="submit">Send Message</button>
       </form>
@@ -20,12 +19,12 @@ import { ref } from 'vue'
 import FileUtils from '@/utilities/FileUtils.js'
 import Computer from 'bitcoin-computer'
 export default {
-    async setup(props){
-        let to = ''
-        let subject = ref('')
-        let body = ref('')
-        return {to, subject, body}
-    },
+    // async setup(props){
+    //     let to = ''
+    //     let subject = ref('')
+    //     let body = ref('')
+    //     return {to, subject, body}
+    // },
     methods: {
         async doSubmit(e){
             e.preventDefault()
@@ -35,15 +34,15 @@ export default {
             const EMAIL = await FileUtils.importFromPublic('contracts/Email.js')
             let date = new Date()
             try{
-                console.log("To", this.to.value, "Subj: ", this.subject.value, "Body: ", this.body.value, "Date: ", date)
-                let _email = await computer.new(EMAIL, [this.to.value, fromKey, this.subject.value, this.body.value, date ])
+                console.log("To", to.value, "Subj: ", subject.value, "Body: ", body.value, "Date: ", date)
+                let _email = await computer.new(EMAIL, [to.value, fromKey, subject.value, body.value, date.toString() ])
                 console.log(_email)
             }catch(err){console.log(err)}
         }
     }
 }
 </script>
-<style>
+<style scoped>
 *, *:before, *:after {
   -moz-box-sizing: border-box;
   -webkit-box-sizing: border-box;
@@ -113,7 +112,6 @@ button {
   text-align: center;
   font-style: normal;
   border-radius: 5px;
-  width: 100%;
   border: 1px solid #3ac162;
   border-width: 1px 1px 3px;
   box-shadow: 0 -1px 0 rgba(255,255,255,0.1) inset;
