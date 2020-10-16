@@ -141,24 +141,29 @@ export default {
             }catch(err){alert(err)}
           }
       },
-      archiveEmail(email){
+      async archiveEmail(email){
         if(!email.archived){
-            email.archive(this.publicKey)
+           return await email.archive(this.publicKey)
           }
       },
       async changeEmail({toggleRead, toggleArchived, save, closeModal, changeIndex}){
           console.log('changed')
-          let email = this.openedEmail
           const computer = await new Computer({network: "testnet", chain: "BSV", seed: this.seed_string})
+          let lr = await computer.getLatestRev(this.openedEmail._id)
+          let email = await computer.sync(lr)
           const fromKey = await computer.db.wallet.getPublicKey().toString()
           if(toggleRead){
             if(!email.read){
-              email.read()
+              await email.read(fromKey)
             }
           }
           if(toggleArchived){
             if(!email.archived){
-              email.archive()
+              try{
+                console.log('calling archive with key', fromKey)
+                let tx =  await email.archive(fromKey)
+                console.log('TX:', tx)
+              }catch(err){alert(err)}
             }
           }
           if(closeModal){email = null}

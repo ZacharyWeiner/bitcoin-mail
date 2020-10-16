@@ -1,5 +1,5 @@
 <template>
-  <h1>VMail Inbox</h1>
+  <h1>TMail Inbox</h1>
   <Suspense> 
     <template #default> 
       

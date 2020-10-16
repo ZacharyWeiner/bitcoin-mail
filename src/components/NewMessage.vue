@@ -41,8 +41,8 @@ export default {
             let date = new Date()
             try{
                 console.log("To", to.value, "Subj: ", subject.value, "Body: ", body.value, "Date: ", date)
-                //let _email = await computer.new(EMAIL, [to.value, fromKey, subject.value, body.value, date.toString() ])
-                //console.log(_email)
+                let _email = await computer.new(EMAIL, [to.value, fromKey, subject.value, body.value, date.toString() ])
+                console.log(_email)
             }catch(err){console.log(err)}
         }
     },

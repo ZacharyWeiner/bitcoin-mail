@@ -13,10 +13,12 @@ class Email {
 
     archive(pk){
         if(pk === this.to) this.archived = true
+        return this.archived
     }
     
     read(pk){
         if(pk === this.to) this.isRead = true
+        return this.isRead
     } 
 
     reply(pk, message){
