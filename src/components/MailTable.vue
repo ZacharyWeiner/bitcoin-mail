@@ -14,9 +14,9 @@
             <tr v-for="email in unarchivedEmails" :key='email.id' :class="['clickable', email.read? 'read' : '']"
                 @click="openEmail(email)"> 
                 <td><input type='checkbox'/> </td>
-                <td>{{email.from.substring(email.from.length -16, email.from.length)}} {{email._rev}} {{email._id}}</td>
-                <td><strong>{{email.subject}}</strong></td>
-                <td class='date'>{{email.sentAt }}</td>
+                <td> From: {{email.from.substring(email.from.length -16, email.from.length)}}</td>
+                <td>Subject <strong>{{email.subject}}</strong></td>
+                <td class='date'>{{email.lastUpdated }}</td>
                 <td><button @click="archiveEmail(email)" className="warning-button"> archive </button></td>
             </tr>
             </tbody>
@@ -25,7 +25,7 @@
             <MailView :email="openedEmail" :showNext="showNext" :showPrevious="showPrevious" @changeEmail="changeEmail"/>
         </ModalView>
         <ModalView v-if="newEmail" @closeModal="newEmail = false">
-          <NewMessage :newEmail="newEmail" :reciever="publicKey"></NewMessage>
+          <NewMessage :newEmail="newEmail"></NewMessage>
         </ModalView >
       </div>   
     </div>
@@ -55,11 +55,11 @@ export default {
         const _computer = await new Computer({network: "testnet", chain: "BSV", seed: seed_string})
         publicKey = _computer.db.wallet.getPublicKey().toString()
         let revs = await _computer.getRevs(_computer.db.wallet.getPublicKey())
-        console.log(revs)
+        console.log("Get Revs:", revs)
         let ids = []
         let synced = await Promise.all(revs.map(async lr => {
           let _mail =  await _computer.sync(lr)
-          console.log(_mail._id)
+          console.log("Object ID:", _mail._id, "Rev: ", _mail._rev)
           if(!ids.includes(_mail._id)){
             ids.push(_mail._id)
             return _mail
@@ -103,7 +103,7 @@ export default {
     sortedEmails(){
       if(!this.emails || this.emails.length < 2) return this.emails
       return this.emails.sort((e1, e2) => {
-        return e1.sentAt < e2.sentAt ? 1 : -1 
+        return e1.lastUpdated < e2.lastUpdated ? 1 : -1 
       })
     }, 
     unarchivedEmails(){

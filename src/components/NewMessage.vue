@@ -40,18 +40,18 @@ export default {
             const EMAIL = await FileUtils.importFromPublic('contracts/Email.js')
             let date = new Date()
             try{
-                console.log("To", to.value, "Subj: ", subject.value, "Body: ", body.value, "Date: ", date)
+                console.log("To", to.value, "from:", fromKey, "Subj: ", subject.value, "Body: ", body.value, "Date: ", date)
                 let _email = await computer.new(EMAIL, [to.value, fromKey, subject.value, body.value, date.toString() ])
                 console.log(_email)
             }catch(err){console.log(err)}
         }
     },
-    props:{
-        reciever: {
-            type: String, 
-            required: true
-        }
-    }
+    // props:{
+    //     reciever: {
+    //         type: String, 
+    //         required: true
+    //     }
+    // }
 }
 </script>
 <style>
@@ -153,6 +153,13 @@ button {
 .blue-button {
   background-color: blue;
   border: 1px solid blue;
+}
+
+.reply{
+    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+    transition: 0.3s;
+    margin: 6px;
+    padding: 6px;
 }
 
 fieldset {

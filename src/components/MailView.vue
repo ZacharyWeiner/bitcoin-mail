@@ -12,6 +12,11 @@
         <h2 class='mb-0'> Subject: <strong> {{email.subject}} </strong> </h2>
         <div> <em> From {{email.from}} on {{email.sent}} </em></div>
         <div v-html="marked(email.body)"/>
+        <div v-for="reply in email.replies" :key="reply._rev" className="reply">
+            <div>From:{{reply.split(":")[0]}} - <small>{{reply.split(":")[3]}}</small></div>
+            <br/>
+            <div style="padding:12px"><strong>{{reply.split(":")[1]}}</strong></div>
+        </div>
         <button  @click="reply" className="blue-button"> Reply</button> 
         <div v-if="showReply"> 
             <textarea v-model="message"/>
@@ -67,12 +72,12 @@ export default {
         }
 
         useKeydown([
-            {key: 'r', fn: toggleRead},
-            {key: 'e', fn: toggleArchived},
-            {key: 'n', fn: getNextEmail},
-            {key: 'm', fn: getNextEmailAndArchive},
-            {key: 'p', fn: getPreviousEmail},
-            {key: '[', fn: getPreviousEmailAndArchive}
+            // {key: 'r', fn: toggleRead},
+            // // {key: 'e', fn: toggleArchived},
+            // {key: 'n', fn: getNextEmail},
+            // {key: 'm', fn: getNextEmailAndArchive},
+            // {key: 'p', fn: getPreviousEmail},
+            // {key: '[', fn: getPreviousEmailAndArchive}
         ])
         return{
             format,
@@ -82,7 +87,8 @@ export default {
             getPreviousEmail,
             getNextEmail,
             emit,
-            showReply
+            showReply, 
+            message
         }
     },
     methods: {
@@ -94,8 +100,12 @@ export default {
             let seed_string = window.localStorage.getItem("SEED")
             const computer = await new Computer({network: "testnet", chain: "BSV", seed: seed_string})
             const fromKey = await computer.db.wallet.getPublicKey().toString()
-            this.email.reply(fromKey, this.message)
-            console.log(this.message)
+            try{
+                await this.email.reply(fromKey, this.message, new Date().toString())
+                console.log(this.message)
+                window.location.reload()
+            }catch(err){alert(err)}
+
         }
     },
     props:{

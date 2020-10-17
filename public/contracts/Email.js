@@ -1,5 +1,6 @@
 class Email {
     constructor(to, from, subject, body, sentAt){
+        this.type = "Email"
         this._owners = [to, from]
         this.to = to 
         this.from = from
@@ -9,6 +10,7 @@ class Email {
         this.archived = false
         this.isRead = false
         this.replies = []
+        this.lastUpdated = sentAt
     }
 
     archive(pk){
@@ -21,7 +23,8 @@ class Email {
         return this.isRead
     } 
 
-    reply(pk, message){
-        this.replies.push(pk + ":" + message)
+    reply(pk, message, date){
+        this.replies.push(pk + ":" + message + ":" + date)
+        this.lastUpdated = date
     }
 }
